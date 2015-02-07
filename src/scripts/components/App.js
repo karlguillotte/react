@@ -1,28 +1,18 @@
-"use strict";
-
-var React = require("react/addons");
-var Router = require("react-router");
-var RouteHandler = Router.RouteHandler;
-var Link = Router.Link;
-var mui = require("material-ui");
-var FloatingActionButton = mui.FloatingActionButton;
-
+import React from 'react';
+import Map from './Map';
+import { RouteHandler } from 'react-router';
+import '../../styles/App.less';
 
 // Export React so the devtools can find it
 (window !== window.top ? window.top : window).React = React;
 
-// Styles
-require("../../styles/App.less");
-
-module.exports = React.createClass({
-	render: function() {
+export default React.createClass({
+	render() {
 	    return (
-    		<div className="App">
-    			<RouteHandler />
-				<Link to="settings" className="settings-link">
-					<FloatingActionButton icon="action-settings" mini={true} />
-				</Link>
-    		</div>
-		);
+	    	<div className="App">
+		    	<RouteHandler />
+	            <Map />
+	    	</div>
+    	);
 	}
 });

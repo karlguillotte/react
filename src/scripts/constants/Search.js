@@ -1,0 +1,5 @@
+export default {
+	SET_TERM: 'SET_TERM',
+	RESET_TERM: 'RESET_TERM',
+	SELECT_ITEM: 'SELECT_ITEM'
+};

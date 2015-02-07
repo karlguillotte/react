@@ -1,21 +1,13 @@
-'use strict';
+import React from 'react';
+import Page from './Page';
+import '../../styles/Settings.less';
 
-var React = require('react/addons');
-
-
-require('../../styles/Settings.less');
-
-
-var Settings = React.createClass({
-  render: function () {
-    return (
-        <div>
-          <p>Content for Settings</p>
-        </div>
-      );
-  }
+export default React.createClass({
+	render() {
+		return (
+			<Page className="Settings">
+				<p>Content for Settings</p>
+			</Page>
+		);
+	}
 });
-
-module.exports = Settings;
-
-

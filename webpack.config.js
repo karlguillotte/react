@@ -37,20 +37,20 @@ module.exports = {
       loader: 'jshint'
     }],
     loaders: [{
-      test: /\.js/,
-      loader: 'react-hot!jsx-loader?harmony'
+      test: /\.(js|jsx)$/,
+      loader: 'react-hot!6to5!jsx-loader?harmony'
+    }, {
+      test: /\.less/,
+      loader: 'style-loader!css-loader!less-loader'
     }, {
       test: /\.css$/,
       loader: 'style-loader!css-loader'
     }, {
-      test: /\.less$/,
-      loader: 'style-loader!raw-loader!less-loader'
-    }, { 
-      test: /\.jsx/, 
-      loader: 'jsx-loader?harmony&insertPragma=React.DOM' 
-    }, {
       test: /\.(png|jpg)$/,
       loader: 'url-loader?limit=8192'
+    }, { 
+      test: /\.(eot|woff)$/, 
+      loader: "file-loader" 
     }]
   },
 

@@ -1,94 +1,71 @@
-'use strict';
+import React from 'react';
+import SearchStore from '../stores/Search';
+import Actions from '../actions/Search';
+import { Paper, Icon, Toolbar, ToolbarGroup } from 'material-ui';
+import { Link } from 'react-router';
 
-var React = require('react/addons');
-var Reflux = require('reflux');
-var mui = require("material-ui");
-var Paper = mui.Paper;
-var IconButton = mui.IconButton;
-var Menu = mui.Menu;
-var MenuItem = mui.MenuItem;
-var store = require('../stores/items');
-var actions = require('../actions/items');
+import '../../styles/SearchBar.less';
 
-require('../../styles/SearchBar.less');
-
-module.exports = React.createClass({
-	displayName: 'SearchBar',
-	mixins: [Reflux.connect(store, 'items')],
-	getInitialState: function() {
+export default React.createClass({
+	getInitialState() {
 		return {
-			active: false,
-			items: []
+			term: SearchStore.getTerm()
 		};
 	},
-	componentDidMount: function() {
-		actions.search();
+	componentWillMount() {
+		SearchStore.addListener(this.setTerm);
 	},
-	getActionIcon: function() {
-		return this.state.active ? 'navigation-arrow-back' : 'action-search';
+	componentWillUnmount() {
+		SearchStore.removeListener(this.setTerm);
 	},
-	getInput: function() {
+	componentDidMount() {
+		this.input().focus();
+	},
+	input() {
 		return this.refs.search.getDOMNode();
 	},
-	getValue: function() {
-		return this.getInput().value;
+	setTerm() {
+		var term = SearchStore.getTerm();
+
+		this.setState({ term });
 	},
-	onChange: function() {
-		actions.search(this.getValue());
+	resetTerm() {
+		var input = this.input();
+		
+		Actions.resetTerm();
+		
+		input.value = null;
+		input.focus();
 	},
-	activate: function() {
-		this.setState({ active: true });
+	onSearchInputChange() {
+		var term = this.input().value;
+
+		Actions.setTerm(term);
 	},
-	deactivate: function() {
-		this.setState({ active: false });
-	},
-	focus: function() {
-		this.getInput().focus();
-	},
-	blur: function() {
-		this.getInput().blur();
-	},
-	onItemClick: function() {
-		console.log(arguments);
-	},
-	menu: function() {
-		if (!this.state.active) {
-			return;
+	render() {
+		var clear;
+		if (this.state.term) {
+			clear = (
+				<ToolbarGroup float="right">
+					<Icon icon="content-clear" onClick={this.resetTerm} />
+				</ToolbarGroup>
+			);
 		}
 
-		var items = this.state.items;
-
-		if (items.length === 0) {
-			items = [{
-				payload: '1',
-				type: MenuItem.Types.SUBHEADER,
-				text: 'Nothing found "' + this.getValue() + '"'
-			}];
-		}
-
-		return <Menu menuItems={items} onItemClick={this.onItemClick} rounded={false} autoWidth={false} />;
-	},
-	icon: function() {
-		var click = this.state.active ? function(event) {
-			// event.preventDefault();
-			// event.stopPropagation();
-			// this.blur();
-		} : function(event) {
-			this.activate();
-			this.focus();
-		};
-
-		return <IconButton icon={this.getActionIcon()}  onClick={click.bind(this)} />;
-	},
-	render: function () {
 		return (
-			<div className="SearchBar">
-				<Paper rounded={false} >
-					{this.icon()}
-					<input type="search" ref="search" name="search" onChange={this.onChange} onFocus={this.activate} onBlur={this.deactivate} />
-				</Paper>
-				{this.menu()}
-			</div>
+			<Paper className="SearchBar" zDepth={2} rounded={false}>
+				<Toolbar>
+					<ToolbarGroup float="left">
+						<Link to="index">
+							<Icon icon="navigation-arrow-back" />
+						</Link>
+					</ToolbarGroup>
+					<div className="search-container">
+						<input type='search' ref='search' name='search' defaultValue={this.state.term} onChange={this.onSearchInputChange} />
+					</div>
+					{clear}
+				</Toolbar>
+			</Paper>
 		);
 	}
 });
