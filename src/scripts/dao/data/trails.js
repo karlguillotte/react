@@ -1,4 +1,4 @@
-import convertTrail from '../../../utils/convertTrail';
+import convertTrail from '../../utils/convertTrail';
 
 var trails = [{
   "trailid": "3",

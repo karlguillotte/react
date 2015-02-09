@@ -8,7 +8,7 @@ import MapActions from '../actions/Map';
 import '../../styles/Map.less';
 import 'leaflet/dist/leaflet.css';
 
-var VectorLayersFactories = new Immutable.Map({
+var VectorLayersFactories = Immutable.Map({
 	trails: Leaflet.polyline,
 	regions: Leaflet.polygon
 });
@@ -16,28 +16,28 @@ var VectorLayersFactories = new Immutable.Map({
 export default React.createClass({
 	mixins: [State, Navigation],
 	getInitialState() {
-		// var query = this.getQuery();
-		// var zoom = query.zoom ? Number(query.zoom) : MapStore.getZoom();
+		this.setLayers();
 
 		return {
-			id: 1,
 			zoom: MapStore.getZoom(),
 			center: MapStore.getCenter(),
 			bounds: MapStore.getBounds(),
 			hasLocation: false,
 			location: null,
-			layers: MapStore.getLayers()
+			layers: Immutable.Map()
 		}
 	},
 	handleMoveend(event) {
 		var center = event.target.getCenter();
+		var calback = MapActions.changeCenter.bind(null, center);
 
-		MapActions.changeCenter(center);
+		setTimeout(calback, 250);
 	},
 	handleZoomend(event) {
 		var zoom = event.target.getZoom();
+		var calback = MapActions.changeZoom.bind(null, zoom);
 
-		MapActions.changeZoom(zoom);
+		setTimeout(calback, 250);
 	},
 	handleLocationFound(event) {
 		this.setState({
@@ -52,16 +52,22 @@ export default React.createClass({
 		return this.refs.map.getLeafletElement();
 	},
 	componentWillMount() {
-		MapStore.addListener(this.onStoreChange);
+		MapStore.addChangeListener(this.onStoreChange);
 	},
 	componentWillUnmount() {
-		MapStore.removeListener(this.onStoreChange);
+		MapStore.removeChangeListener(this.onStoreChange);
+	},
+	shouldComponentUpdate(nextProps, nextState) {
+		return nextState.layers !== this.state.layers;
+	},
+	setLayers() {
+		MapStore.getLayers().then(layers => this.setState({layers}));
 	},
 	onStoreChange() {
 		this.setState({
-			bounds: MapStore.getBounds(),
-			layers: MapStore.getLayers()
+			bounds: MapStore.getBounds()
 		});
+		this.setLayers();
 	},
 	shouldComponentUpdate(nextProps, nextState) {
 		if (this.state.bounds !== nextState.bounds) {
@@ -76,58 +82,37 @@ export default React.createClass({
 
 		return this.state.layers !== nextState.layers;
 	},
-	onFeatureClick(feature, event) {
-		var map = this.getMap();
-
-		map.closePopup();
-		
-		MapActions.selectFeature(feature);
+	onFeatureClick(feature) {
+		MapActions.selectFeature({ feature, target: this });
 	},
 	handleClick() {
 		if (!this.isActive('index')) {
 			this.transitionTo('index');
 		}
 	},
-	onPopupClick(feature, event) {
-		event.preventDefault();
-		this.onFeatureClick(feature);
-	},
-	createPopup(feature) {
-		var popup = document.createElement('div');
-		var anchor = document.createElement('a');
-		
-		anchor.textContent = feature.title;
-		anchor.href = "#";
-		anchor.onclick = this.onPopupClick.bind(this, feature);
-
-		popup.appendChild(anchor);
-
-		return popup;
-	},
 	render () {
 	  	var url = 'http://{s}.tiles.mapbox.com/v4/examples.ra3sdcxr/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IlhHVkZmaW8ifQ.hAMX5hSW-QnTeRCMAy9A8Q';
-	  	var center = this.state.center.toJS();
-	  	var zoom = this.state.zoom;
-	  	var id = this.state.id++;
-	  	var onFeatureClick = this.onFeatureClick;
-		var layers = this.state.layers.map(function(layer, key) {
-			var features = layer.get('features').toList().toJS();
+	  	var {center,zoom,layers,hasLocation,location} = this.state;
+	  	
+	  	center = center.toJS();
+		
+		layers = layers.map((layer, key) => {
+			var features = layer.get('features');
 			var style = layer.get('style');
 			var factory = VectorLayersFactories.get(key);
-			var vectors = features.map(f => {
-				var onClick = onFeatureClick.bind(this, f);
-				var popup = this.createPopup(f);
+			var vectors = features.toList().toJS().map(feature => {
+				var onClick = this.onFeatureClick.bind(this, feature);
+				var {coordinates} = feature;
 
-				return factory(f.coordinates, style).bindPopup(popup);
-			}, this);
+				return factory(coordinates, style).on('click', onClick);
+			});
 
-			return <FeatureGroup key={`${key}-${id}`} layers={vectors} />;
-		}, this).toList();
-	    var location = null;
+			return <FeatureGroup key={key} layers={vectors} />;
+		}).toList();
 
-		if (this.state.hasLocation) {
+		if (hasLocation && location) {
 			location = (
-				<Marker position={this.state.location}>
+				<Marker position={location}>
 					<Popup>
 						<span>You are here</span>
 					</Popup>

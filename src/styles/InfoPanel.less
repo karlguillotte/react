@@ -1,21 +1,27 @@
 .InfoPanel {
 	position: absolute;
-	height: 150px;
 	left: 0;
 	right: 0;
 	bottom: 0;
+	height: 56px;
+	min-height: 56px;
+	max-height: 450px;
 	background-color: white;
+	opacity: 0.95;
 	z-index: 1;
-	.mui-paper-container {
-		padding: 0 12px;
-	}
-	.title {
-		margin-bottom: 0;
+	overflow: hidden;
+	.mui-toolbar-group.mui-left {
+		.mui-toolbar-title {
+			cursor: pointer;
+			font-size: 20px;
+		}
 	}
 	.content {
 		position: absolute;
 		top: 60px;
+		right: 12px;
 		bottom: 0;
-		overflow-x: scroll;
+		left: 12px;
+		overflow-x: scroll;	
 	}
 }

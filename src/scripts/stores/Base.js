@@ -10,16 +10,16 @@ class Store extends EventEmitter {
 	onAction(action) {
 		throw 'Not implemented';
 	}
-	emit() {
+	emitChange() {
 		super.emit(EVENT);
 	}
 	getToken() {
 		return this.token;
 	}
-	addListener(callback) {
+	addChangeListener(callback) {
 		super.addListener(EVENT, callback);
 	}
-	removeListener(callback) {
+	removeChangeListener(callback) {
 		super.removeListener(EVENT, callback);
 	}
 }

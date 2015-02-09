@@ -2,7 +2,7 @@ import React from 'react/addons';
 import '../../styles/Page.less';
 
 export default React.createClass({
-  render: function () {
+  render() {
     return (
         <div className={`Page ${this.props.className}`}>
         	{this.props.children}

@@ -1,31 +1,34 @@
 import React from 'react';
-import SearchStore from '../stores/Search';
+import Store from '../stores/Search';
 import Actions from '../actions/Search';
 import { Paper, Icon, Toolbar, ToolbarGroup } from 'material-ui';
-import { Link } from 'react-router';
-
+import { Link, Navigation } from 'react-router';
 import '../../styles/SearchBar.less';
 
 export default React.createClass({
+	mixins: [Navigation],
 	getInitialState() {
 		return {
-			term: SearchStore.getTerm()
+			term: Store.getTerm()
 		};
 	},
 	componentWillMount() {
-		SearchStore.addListener(this.setTerm);
+		Store.addChangeListener(this.setTerm);
 	},
 	componentWillUnmount() {
-		SearchStore.removeListener(this.setTerm);
+		Store.removeChangeListener(this.setTerm);
 	},
 	componentDidMount() {
-		this.input().focus();
+		var input = this.input();
+		
+		input.focus();
+		input.select();
 	},
 	input() {
 		return this.refs.search.getDOMNode();
 	},
 	setTerm() {
-		var term = SearchStore.getTerm();
+		var term = Store.getTerm();
 
 		this.setState({ term });
 	},
@@ -42,8 +45,18 @@ export default React.createClass({
 
 		Actions.setTerm(term);
 	},
+	onSearchInputKeyUp(event) {
+		if (event.key !== 'Escape') {
+			return;
+		}
+
+		var {path} = this.props;
+
+		this.transitionTo(path);
+	},
 	render() {
-		var clear;
+		var clear = null;
+
 		if (this.state.term) {
 			clear = (
 				<ToolbarGroup float="right">
@@ -56,12 +69,12 @@ export default React.createClass({
 			<Paper className="SearchBar" zDepth={2} rounded={false}>
 				<Toolbar>
 					<ToolbarGroup float="left">
-						<Link to="index">
+						<Link to={this.props.path}>
 							<Icon icon="navigation-arrow-back" />
 						</Link>
 					</ToolbarGroup>
 					<div className="search-container">
-						<input type='search' ref='search' name='search' defaultValue={this.state.term} onChange={this.onSearchInputChange} />
+						<input type='search' ref='search' name='search' defaultValue={this.state.term} onKeyUp={this.onSearchInputKeyUp} onChange={this.onSearchInputChange} />
 					</div>
 					{clear}
 				</Toolbar>

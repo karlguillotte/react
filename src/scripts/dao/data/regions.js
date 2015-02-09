@@ -1,4 +1,4 @@
-import convertRegion from '../../../utils/convertRegion';
+import convertRegion from '../../utils/convertRegion';
 
 var regions = [{
     "rid": "1",

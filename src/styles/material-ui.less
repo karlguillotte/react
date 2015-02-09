@@ -1,2 +1,22 @@
 @import '../../node_modules/material-ui/src/less/scaffolding.less';
 @import '../../node_modules/material-ui/src/less/components.less';
+
+
+.mui-toolbar .mui-toolbar-group {
+	&:first-child {
+		&.mui-left {
+			.mui-icon {
+				padding-right: 16px;
+				padding-left: 16px;
+			}
+		}
+	}
+	&:last-child {
+		&.mui-right {
+			.mui-icon {
+				padding-right: 16px;
+				padding-left: 16px;
+			}
+		}
+	}
+}

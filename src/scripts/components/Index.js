@@ -1,14 +1,13 @@
-import React from 'react';
-import Page from './Page';
-import InfoPanel from './InfoPanel';
-import { FloatingActionButton, Toolbar, Icon, ToolbarGroup } from 'material-ui';
-import { Link } from 'react-router';
-import '../../styles/Index.less';
+import React from "react";
+import Page from "./Page";
+import { FloatingActionButton, Toolbar, Icon, ToolbarGroup } from "material-ui";
+import { Link, RouteHandler } from "react-router";
+import "../../styles/Index.less";
 
 export default React.createClass({
     render() {
         return (
-            <Page className='Index'>
+            <Page className="Index">
                 <Toolbar>
                     <ToolbarGroup float="left">
                         <Link to="search">
@@ -16,7 +15,7 @@ export default React.createClass({
                         </Link>
                     </ToolbarGroup>
                 </Toolbar>
-                <InfoPanel />
+                <RouteHandler />
             </Page>
         );
     }

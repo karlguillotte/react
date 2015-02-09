@@ -16,8 +16,16 @@ export default function(trail) {
 	return {
 		id: String(trail.trailid),
 		type: TYPE,
+		alias: trail.alias,
 		title: trail.title,
 		description: trail.description,
-		coordinates: coordinates
+		coordinates: coordinates,
+		accessInfo: trail.access_info,
+		difficulty: trail.difficulty,
+		// trailtype: trail.trailtype,
+		// biketype: trail.biketype,
+		// physicalRating: trail.physical_rating,
+		// rating: trail.rating,
+		// status: trail.status
 	}
 };

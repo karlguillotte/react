@@ -1,0 +1,10 @@
+Searching 40 files for "ligthgrey"
+
+/Users/karlguillotte/Documents/GitHub/react-propolis/src/styles/SearchBar.less:
+    3  
+    4  	.mui-toolbar {
+    5: 		background-color: ligthgrey;
+    6  		opacity: 0.85;
+    7  		pointer-events: none;
+
+1 match in 1 file

@@ -20,16 +20,17 @@ export default {
 			bounds: bounds
 		});
 	},
-	selectFeature(feature) {
+	selectFeature({feature,target}) {
 		Dispatcher.dispatch({
 			type: Constants.SELECT_FEATURE,
-			feature: feature
+			feature: feature,
+			target: target
 		});
 	},
-	unselectFeature(feature) {
+	unselectFeature({target}) {
 		Dispatcher.dispatch({
 			type: Constants.UNSELECT_FEATURE,
-			feature: feature
+			target: target
 		});
 	},
 	fitToFeature(feature) {

@@ -1,43 +1,56 @@
-import { TrailsApi, RegionsApi } from '../services/api/Domain';
+import BaseStore from './Base';
+import DomainsApis from '../dao/Domain';
 import { Map } from 'immutable';
-import Base from './Base';
+import {Promise} from 'es6-promise';
 
-class Store extends Base {
+class DomainStore extends BaseStore {
 	constructor(api) {
 		super.constructor();
 		
 		this.api = api;
-		this.features = new Map();
-		this.shouldRequest = true;
+		this.features = Map();
 	}
 	onAction() {
 		return true;
 	}
 	getAll(options) {
-		if (this.features.isEmpty() && this.shouldRequest) {
-			this.shouldRequest = false;
-			this.api.request(options).then(data => {
-				this.features = this.features.merge(data.map(f => [f.id, f]));
-				this.emit();
-			});
+		if (!this.features.isEmpty()) {
+			return Promise.resolve(this.features);
 		}
 
-		return this.features;
+		return this.api.request(options).then(data => {
+			this.features = this.features.merge(data.map(f => [f.id, f]));
+			
+			return this.features;
+		});
 	}
-	get(id, options) {
-		if (this.features.has(id)) {
-			return this.features.get(id);
+	get({id, alias}) {
+		var feature;
+
+		if (typeof id !== 'undefined') {
+			if (feature = this.features.get(id)) {
+				return Promise.resolve(feature.toJS ? feature.toJS() : feature);
+			}
 		}
 
-		this.api.request(id, options).then(f => {
-			this.features = this.features.set(f.id, f);
-			this.emit();
+		if (typeof alias !== 'undefined') {
+			if (feature = this.features.find(f => f.alias === alias)) {
+				return Promise.resolve(feature.toJS ? feature.toJS() : feature);
+			}
+		}
+
+		var params = id ? {id} : {alias};
+
+		return this.api.request(params).then(feature => {
+			this.features = this.features.set(feature.id, feature);
+			
+			return feature;
 		});
 	}
 }
 
-export default {
-	TrailsStore: new Store(TrailsApi),
-	RegionsStore: new Store(RegionsApi)
-};
+export default Map({
+	trails: new DomainStore(DomainsApis.trails),
+	regions: new DomainStore(DomainsApis.regions)
+});
 

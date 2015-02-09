@@ -13,10 +13,11 @@ export default {
 			type: Constants.RESET_TERM
 		});
 	},
-	selectItem(item) {
+	selectItem({item,target}) {
 		Dispatcher.dispatch({
 			type: Constants.SELECT_ITEM,
-			item: item
-		});		
+			item: item,
+			target: target
+		});
 	}
 };

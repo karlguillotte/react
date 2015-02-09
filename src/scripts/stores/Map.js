@@ -1,17 +1,19 @@
 import { latLngBounds } from 'leaflet';
 import { Map } from 'immutable';
-import Base from './Base';
+import BaseStore from './Base';
 import Storage from '../services/Storage';
-import { TrailsStore, RegionsStore } from '../stores/Domain';
+import Stores from '../stores/Domain';
 import SearchConstants from '../constants/Search';
-import SearchStore from '../stores/Search';
+import FeatureStore from '../stores/Features';
 import MapConstants from '../constants/Map';
+import {Promise} from 'es6-promise';
+import Dispatcher from '../Dispatcher';
 
 // Private variables
 var storage = new Storage('354aaae9-8eba-4ad0-9478-ed45192da828');
 var center = Map({ lat: 49.5, lng: -123.5 });
 var bounds = Map({ south: 0, west: 0, north: 0, east: 0 });
-var layers = Map({
+var Layers = Map({
 	trails: Map({
 		style: {
 			color: '#ff0000'
@@ -25,10 +27,6 @@ var layers = Map({
 		features: Map()
 	})
 });
-var stores = Map({
-	trails: TrailsStore,
-	regions: RegionsStore
-});
 var selection = null;
 
 // Private functions
@@ -40,7 +38,7 @@ var setCenter = function(center) {
 
 	return storage.set('center', c);
 };
-function updateBounds(coordinates, force) {
+function updateBounds({coordinates}, force) {
 	var llb = latLngBounds(coordinates);
 	var west = llb.getWest();
 	var south = llb.getSouth();
@@ -50,68 +48,77 @@ function updateBounds(coordinates, force) {
 	
 	bounds = force ? Map(newBounds) : bounds.merge(newBounds);
 }
-function addListeners() {
-	stores.forEach((store, type) => {
-		store.addListener(() => {
-			var layer = layers.get(type);
-			
-			layer = layer.set('features', store.getAll());
 
-			layers = layers.set(type, layer);
-			this.emit();
-		});
-		store.getAll();
-	});
-}
 // Store Class
-class Store extends Base {
-	constructor() {
-		super.constructor();
-
-		addListeners.call(this);
-	}
+class MapStore extends BaseStore {
 	onAction(action) {
+		// var tokens = Stores.toList().map(s => s.token).toJS();
+
 		switch(action.type) {
 			case SearchConstants.SELECT_ITEM: 
-				var feature = selection = SearchStore.getFeature(action.item);
+				var {item,target} = action;
 
-				updateBounds(feature.coordinates);
-
-				this.emit();
+				FeatureStore.get(item).then(feature => {
+					this.transitionTo(feature, target);
+				});
 			break;
 			case MapConstants.SELECT_FEATURE: 
-				var feature = selection = action.feature;
+				var {feature,target} = action;
 
-				updateBounds(feature.coordinates);
-
-				this.emit();
+				this.transitionTo(feature, target);
 			break;
 			case MapConstants.UNSELECT_FEATURE: 
+				var {target} = action;
+				
 				selection = null;
 
-				this.emit();
+				target.transitionTo('index');
+				
+				this.emitChange();
 			break;
 			case MapConstants.FIT_TO_FEATURE: 
-				var feature = action.feature;
+				var {feature} = action;
 
-				updateBounds(feature.coordinates, true);
+				updateBounds(feature, true);
 
-				this.emit();
+				this.emitChange();
 			break;
 			case MapConstants.CHANGE_ZOOM: 
-				setZoom(action.zoom);
-				this.emit();
+				var {zoom} = action;
+
+				setZoom(zoom);
+
+				this.emitChange();
 			break;
 			case MapConstants.CHANGE_CENTER: 
-				setCenter(action.center);
-				this.emit();
+				var {center} = action;
+
+				setCenter(center);
+
+				this.emitChange();
 			break;
 		}
 
 		return true;
 	}
+	transitionTo(feature, target) {
+		updateBounds(feature);
+		selection = feature;
+		this.emitChange();
+		target.transitionTo(feature.type, feature);
+	}
 	getLayers() {
-		return layers;
+		var promises = Stores.map((store, type) => {
+			return store.getAll().then(features => {
+				var layer = Layers.get(type);
+					
+				layer = layer.set('features', features);
+
+				Layers = Layers.set(type, layer);
+			});
+		}).toArray();
+
+		return Promise.all(promises).then(() => Layers);
 	}
 	getZoom() {
 		return getZoom();
@@ -127,4 +134,4 @@ class Store extends Base {
 	}
 }
 
-export default new Store();
+export default new MapStore();

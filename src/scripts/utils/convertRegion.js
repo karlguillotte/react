@@ -15,6 +15,7 @@ export default function(region) {
 	return {
 		id: String(region.rid),
 		type: TYPE,
+		alias: region.alias,
 		title: region.title,
 		description: region.description,
 		coordinates: [coordinates]
