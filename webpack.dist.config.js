@@ -44,8 +44,8 @@ module.exports = {
     }],
 
     loaders: [{
-      test: /\.js$/,
-      loader: '6to5!jsx-loader?harmony'
+      test: /\.(js|jsx)$/,
+      loader: 'react-hot!6to5!jsx-loader?harmony'
     }, {
       test: /\.css$/,
       loader: 'style-loader!css-loader'
