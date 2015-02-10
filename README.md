@@ -1,2 +1,2 @@
-# react-propolis
-Propolis with React
+# react
+react application. 
