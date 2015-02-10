@@ -49,6 +49,6 @@
     "webpack-dev-server": "^1.7.0"
   },
   "scripts": {
-    "publish": "git checkout gh-pages && cp dist/* . && git commit -am 'Code update' && git push && git checkout master"
+    "publish": "git checkout gh-pages && cp -r dist/* . && git commit -am 'Code update' && git push && git checkout master"
   }
 }

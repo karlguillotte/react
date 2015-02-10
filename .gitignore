@@ -30,4 +30,6 @@ npm-debug.log
 node_modules/
 .tmp
 dist
+assets
+index.html
 /src/scripts/main.js
