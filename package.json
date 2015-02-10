@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "description": "",
   "repository": "",
-  "private": true,
   "src": "src",
   "test": "test",
   "dist": "dist",
@@ -48,5 +47,8 @@
     "url-loader": "~0.5.5",
     "webpack": "^1.5.3",
     "webpack-dev-server": "^1.7.0"
+  },
+  "scripts": {
+    "publish": "git checkout gh-pages && cp dist/* . && git commit -am 'Code update' && git push && git checkout master"
   }
 }
